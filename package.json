@@ -1,0 +1,36 @@
+{
+  "name": "@lightbase/next-preset",
+  "version": "1.0.0-beta.0",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "repository": "https://github.com/lightbasenl/next-preset",
+  "author": "Rody Molenaar <rody@lightbase.nl>",
+  "scripts": {
+    "build": "tsc",
+    "test": "echo \"No tests specified\""
+  },
+  "peerDependencies": {
+    "@sentry/nextjs": "^6.8.0",
+    "next": "^11"
+  },
+  "devDependencies": {
+    "@lightbase/eslint-config-lightbase": "^2.15.0",
+    "@types/glob": "^7.1.3",
+    "@types/lodash": "^4.14.170",
+    "eslint": "^7.29.0",
+    "prettier": "^2.3.1",
+    "typescript": "^4.3.5"
+  },
+  "dependencies": {
+    "@sentry/nextjs": "^6.8.0",
+    "acorn": "^8.4.1",
+    "glob": "^7.1.7",
+    "lodash": "^4.17.21",
+    "next": "^11",
+    "next-transpile-modules": "^8.0.0",
+    "react": "^17.0.2",
+    "source-map": "0.8.0-beta.0",
+    "webpack": "^5.42.1"
+  },
+  "license": "MIT"
+}
