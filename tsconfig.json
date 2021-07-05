@@ -1,13 +1,10 @@
 {
   "compilerOptions": {
-    "lib": ["es2018"],
     "strict": true,
     "moduleResolution": "node",
     "outDir": "./dist",
     "esModuleInterop": true,
     "allowJs": true,
-    "module": "commonjs",
-    "target": "es2018"
   },
   "include": [
     "src/**/*"
