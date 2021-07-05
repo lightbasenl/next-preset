@@ -1,6 +1,6 @@
 {
   "name": "@lightbase/next-preset",
-  "version": "1.0.0-beta.4",
+  "version": "1.0.0-beta.5",
   "main": "dist/index.js",
   "repository": "https://github.com/lightbasenl/next-preset",
   "author": "Rody Molenaar <rody@lightbase.nl>",
@@ -31,5 +31,8 @@
     "source-map": "0.8.0-beta.0",
     "webpack": "^5.42.1"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "files": [
+    "**/*"
+  ]
 }
