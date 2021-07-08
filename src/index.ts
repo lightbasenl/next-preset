@@ -11,14 +11,17 @@ export function withPreset(nextConfig: ExportedNextConfig): NextConfigFunction {
       ? nextConfig(phase, defaults)
       : nextConfig;
 
-    let config = baseConfig ?? {};
+    let newConfig = baseConfig ?? {};
 
     // Set misc. defaults
-    config.poweredByHeader = config.poweredByHeader ?? false;
-    config.pageExtensions = config.pageExtensions ?? ["api.ts", "page.tsx"];
+    newConfig.poweredByHeader = newConfig.poweredByHeader ?? false;
+    newConfig.pageExtensions = newConfig.pageExtensions ?? [
+      "api.ts",
+      "page.tsx",
+    ];
 
     // Set default headers
-    config.headers = async () => {
+    newConfig.headers = async () => {
       return [
         {
           source: "/:path*{/}?",
@@ -54,28 +57,30 @@ export function withPreset(nextConfig: ExportedNextConfig): NextConfigFunction {
     };
 
     if (preset?.transpileModules) {
-      config = withTM(preset.transpileModules)(config);
+      newConfig = withTM(preset.transpileModules)(newConfig);
     }
 
-    config.webpack = extendWebpackConfig((config, options) => {
+    newConfig.webpack = extendWebpackConfig((config, options) => {
       if (!options.dev) {
         // Next.js doesn't let you change this is dev even if you want to - see
         // https://github.com/vercel/next.js/blob/master/errors/improper-devtool.md
         config.devtool = "source-map";
 
-        config.plugins?.push(new BrowserCompatibilityWebpackPlugin());
+        config.plugins?.push(
+          new BrowserCompatibilityWebpackPlugin(preset?.ignoreModules)
+        );
       }
 
       return config;
-    }, config.webpack);
+    }, newConfig.webpack);
 
     if (preset?.sentry?.enabled) {
-      config = withSentryConfig(config, preset?.sentry?.webpackPluginOptions)(
-        phase,
-        defaults
-      );
+      newConfig = withSentryConfig(
+        newConfig,
+        preset?.sentry?.webpackPluginOptions
+      )(phase, defaults);
     }
 
-    return config;
+    return newConfig;
   };
 }

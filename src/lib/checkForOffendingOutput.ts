@@ -4,7 +4,9 @@ import { promises as fs } from "fs";
 import { SourceMapConsumer } from "source-map";
 import _ from "lodash";
 
-export default async function checkForOffendingOutput() {
+export default async function checkForOffendingOutput(
+  ignoreModules: string[] = []
+) {
   const ecmaVersion = 5;
   const paths = ["./.next/static/**/*.js"];
   const useEsModules = false;
@@ -94,51 +96,21 @@ export default async function checkForOffendingOutput() {
     })
   );
 
-  console.log();
+  const filteredOffenders = _.uniq(
+    offenders.map((offender) => formatEntry(offender))
+  ).filter((offender) => !ignoreModules.includes(offender));
+
+  if (filteredOffenders.length === 0) {
+    return;
+  }
+
   console.log("[PRESET]");
   console.log(
     "You might want to add the following entries to `preset.transpileModules` in `next.config.js`:"
   );
   console.log();
 
-  for (const offender of _.uniq(
-    offenders.map((offender) => {
-      return offender
-        .replace("webpack://_N_E/", "")
-        .split("/")
-        .reduce<string[]>((parts, part, index) => {
-          if (parts.length === 0 && part === "node_modules" && index === 0) {
-            return parts;
-          }
-
-          if (parts[parts.length - 1] === "node_modules") {
-            parts.push(part);
-            return parts;
-          }
-
-          if (
-            parts[parts.length - 1] &&
-            parts[parts.length - 1].startsWith("@")
-          ) {
-            parts.push(part);
-            return parts;
-          }
-
-          if (parts.length === 0) {
-            parts.push(part);
-            return parts;
-          }
-
-          if (part === "node_modules") {
-            parts.push(part);
-            return parts;
-          }
-
-          return parts;
-        }, [])
-        .join("/");
-    })
-  )) {
+  for (const offender of filteredOffenders) {
     console.log(`- ${offender}`);
   }
 
@@ -149,4 +121,38 @@ export default async function checkForOffendingOutput() {
   console.log();
 
   process.exit(1);
+}
+
+function formatEntry(entry: string) {
+  return entry
+    .replace("webpack://_N_E/", "")
+    .split("/")
+    .reduce<string[]>((parts, part, index) => {
+      if (parts.length === 0 && part === "node_modules" && index === 0) {
+        return parts;
+      }
+
+      if (parts[parts.length - 1] === "node_modules") {
+        parts.push(part);
+        return parts;
+      }
+
+      if (parts[parts.length - 1] && parts[parts.length - 1].startsWith("@")) {
+        parts.push(part);
+        return parts;
+      }
+
+      if (parts.length === 0) {
+        parts.push(part);
+        return parts;
+      }
+
+      if (part === "node_modules") {
+        parts.push(part);
+        return parts;
+      }
+
+      return parts;
+    }, [])
+    .join("/");
 }

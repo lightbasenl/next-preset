@@ -12,6 +12,7 @@ export type NextConfigObject = {
       webpackPluginOptions?: unknown;
     };
     transpileModules?: string[];
+    ignoreModules?: string[];
   };
   webpack?: WebpackConfigFunction;
 } & {

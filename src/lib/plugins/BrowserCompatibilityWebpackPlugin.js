@@ -1,6 +1,10 @@
 import checkForOffendingOutput from "../checkForOffendingOutput";
 
 class BrowserCompatibilityWebpackPlugin {
+  constructor(ignoreModules = []) {
+    this.ignoreModules = ignoreModules;
+  }
+
   apply(compiler) {
     /**
      * Determines whether plugin should be applied not more than once during whole webpack run.
@@ -17,7 +21,7 @@ class BrowserCompatibilityWebpackPlugin {
     compiler.hooks.afterEmit.tapAsync(
       "next-preset",
       async (compilation, callback) => {
-        await checkForOffendingOutput();
+        await checkForOffendingOutput(this.ignoreModules);
 
         callback();
       }
