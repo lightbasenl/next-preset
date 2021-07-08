@@ -1,24 +1,21 @@
 import isFunction from "./lib/isFunction";
-import {
-  ExportedNextConfig,
-  NextConfigFunction,
-  WebpackConfigFunction,
-} from "./types/config";
-import EsCheckWebpackPlugin from "./lib/EsCheckWebpackPlugin";
+import { ExportedNextConfig, NextConfigFunction } from "./types/config";
+import BrowserCompatibilityWebpackPlugin from "./lib/plugins/BrowserCompatibilityWebpackPlugin";
+import extendWebpackConfig from "./lib/extendWebpackConfig";
 const withTM = require("next-transpile-modules");
 const { withSentryConfig } = require("@sentry/nextjs");
 
 export function withPreset(nextConfig: ExportedNextConfig): NextConfigFunction {
   return (phase, defaults) => {
-    const { preset, webpack, headers, ...baseConfig } = isFunction(nextConfig)
+    const { preset, headers, ...baseConfig } = isFunction(nextConfig)
       ? nextConfig(phase, defaults)
       : nextConfig;
 
     let config = baseConfig ?? {};
 
     // Set misc. defaults
-    config.poweredByHeader = baseConfig.poweredByHeader ?? false;
-    config.pageExtensions = baseConfig.pageExtensions ?? ["api.ts", "page.tsx"];
+    config.poweredByHeader = config.poweredByHeader ?? false;
+    config.pageExtensions = config.pageExtensions ?? ["api.ts", "page.tsx"];
 
     // Set default headers
     config.headers = async () => {
@@ -56,26 +53,21 @@ export function withPreset(nextConfig: ExportedNextConfig): NextConfigFunction {
       ];
     };
 
-    // Register custom webpack plugins
-    const webpackConfig: WebpackConfigFunction = (config, options) => {
-      const baseConfig = webpack ? webpack(config, options) : config;
+    if (preset?.transpileModules) {
+      config = withTM(preset.transpileModules)(config);
+    }
 
+    config.webpack = extendWebpackConfig((config, options) => {
       if (!options.dev) {
         // Next.js doesn't let you change this is dev even if you want to - see
         // https://github.com/vercel/next.js/blob/master/errors/improper-devtool.md
-        baseConfig.devtool = "source-map";
+        config.devtool = "source-map";
 
-        baseConfig.plugins?.push(new EsCheckWebpackPlugin());
+        config.plugins?.push(new BrowserCompatibilityWebpackPlugin());
       }
 
-      return baseConfig;
-    };
-
-    config.webpack = webpackConfig;
-
-    if (preset?.transpileModules) {
-      config = withTM(preset.transpileModules)(baseConfig);
-    }
+      return config;
+    }, config.webpack);
 
     if (preset?.sentry?.enabled) {
       config = withSentryConfig(config, preset?.sentry?.webpackPluginOptions)(

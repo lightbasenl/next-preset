@@ -1,7 +1,6 @@
-import checkForOffendingOutput from "./checkForOffendingOutput";
-import removeSourceMaps from "./removeSourceMaps";
+import checkForOffendingOutput from "../checkForOffendingOutput";
 
-class EsCheckWebpackPlugin {
+class BrowserCompatibilityWebpackPlugin {
   apply(compiler) {
     /**
      * Determines whether plugin should be applied not more than once during whole webpack run.
@@ -15,11 +14,10 @@ class EsCheckWebpackPlugin {
     module.alreadyRun = true;
 
     // Specify the event hook to attach to
-    compiler.hooks.done.tapAsync(
+    compiler.hooks.afterEmit.tapAsync(
       "next-preset",
       async (compilation, callback) => {
         await checkForOffendingOutput();
-        await removeSourceMaps();
 
         callback();
       }
@@ -27,4 +25,4 @@ class EsCheckWebpackPlugin {
   }
 }
 
-export default EsCheckWebpackPlugin;
+export default BrowserCompatibilityWebpackPlugin;
