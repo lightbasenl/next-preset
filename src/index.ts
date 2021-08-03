@@ -1,8 +1,12 @@
 import isFunction from "./lib/isFunction";
-import { ExportedNextConfig, NextConfigFunction } from "./types/config";
+import {
+  ExportedNextConfig,
+  NextConfigFunction,
+  NextConfigObject,
+} from "./types/config";
 import BrowserCompatibilityWebpackPlugin from "./lib/plugins/BrowserCompatibilityWebpackPlugin";
 import extendWebpackConfig from "./lib/extendWebpackConfig";
-const withTM = require("next-transpile-modules");
+import withTM from "next-transpile-modules";
 const { withSentryConfig } = require("@sentry/nextjs");
 
 export function withPreset(nextConfig: ExportedNextConfig): NextConfigFunction {
@@ -11,7 +15,7 @@ export function withPreset(nextConfig: ExportedNextConfig): NextConfigFunction {
       ? nextConfig(phase, defaults)
       : nextConfig;
 
-    let newConfig = baseConfig ?? {};
+    let newConfig: NextConfigObject = baseConfig ?? {};
 
     // Set misc. defaults
     newConfig.poweredByHeader = newConfig.poweredByHeader ?? false;
@@ -75,10 +79,14 @@ export function withPreset(nextConfig: ExportedNextConfig): NextConfigFunction {
     }, newConfig.webpack);
 
     if (preset?.sentry?.enabled) {
-      newConfig = withSentryConfig(
+      const sentryConfig = withSentryConfig(
         newConfig,
         preset?.sentry?.webpackPluginOptions
-      )(phase, defaults);
+      );
+
+      newConfig = (
+        isFunction(sentryConfig) ? sentryConfig(phase, defaults) : sentryConfig
+      ) as NextConfigObject;
     }
 
     return newConfig;
