@@ -1,12 +1,9 @@
 import isFunction from "./lib/isFunction";
-import {
-  ExportedNextConfig,
-  NextConfigFunction,
-  NextConfigObject,
-} from "./types/config";
+import { ExportedNextConfig, NextConfigFunction, NextConfigObject } from "./types/config";
 import BrowserCompatibilityWebpackPlugin from "./lib/plugins/BrowserCompatibilityWebpackPlugin";
 import extendWebpackConfig from "./lib/extendWebpackConfig";
 import withTM from "next-transpile-modules";
+
 const { withSentryConfig } = require("@sentry/nextjs");
 
 export function withPreset(nextConfig: ExportedNextConfig): NextConfigFunction {
@@ -19,10 +16,7 @@ export function withPreset(nextConfig: ExportedNextConfig): NextConfigFunction {
 
     // Set misc. defaults
     newConfig.poweredByHeader = newConfig.poweredByHeader ?? false;
-    newConfig.pageExtensions = newConfig.pageExtensions ?? [
-      "api.ts",
-      "page.tsx",
-    ];
+    newConfig.pageExtensions = newConfig.pageExtensions ?? ["api.ts", "page.tsx"];
 
     // Set default headers
     newConfig.headers = async () => {
@@ -70,19 +64,14 @@ export function withPreset(nextConfig: ExportedNextConfig): NextConfigFunction {
         // https://github.com/vercel/next.js/blob/master/errors/improper-devtool.md
         config.devtool = "source-map";
 
-        config.plugins?.push(
-          new BrowserCompatibilityWebpackPlugin(preset?.ignoreModules)
-        );
+        config.plugins?.push(new BrowserCompatibilityWebpackPlugin(preset?.ignoreModules));
       }
 
       return config;
     }, newConfig.webpack);
 
     if (preset?.sentry?.enabled) {
-      const sentryConfig = withSentryConfig(
-        newConfig,
-        preset?.sentry?.webpackPluginOptions
-      );
+      const sentryConfig = withSentryConfig(newConfig, preset?.sentry?.webpackPluginOptions);
 
       newConfig = (
         isFunction(sentryConfig) ? sentryConfig(phase, defaults) : sentryConfig

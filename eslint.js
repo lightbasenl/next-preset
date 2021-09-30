@@ -1,9 +1,7 @@
-{
-  "parser": "@typescript-eslint/parser",
-  "extends": [
-    "prettier"
-  ],
-  "rules": {
+module.exports = {
+  parser: "@typescript-eslint/parser",
+  extends: ["prettier", "next"],
+  rules: {
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-parameter-properties": "off",
     "@typescript-eslint/camelcase": "off",
@@ -13,6 +11,8 @@
     "@typescript-eslint/prefer-interface": "off",
     "default-case": "off",
     "@typescript-eslint/interface-name-prefix": "off",
-    "curly": "error"
-  }
-}
+    "react/react-in-jsx-scope": "off",
+    "jsx-a11y/anchor-is-valid": "off",
+    curly: "error",
+  },
+};

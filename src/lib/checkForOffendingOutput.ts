@@ -6,9 +6,7 @@ import _ from "lodash";
 
 type AcornError = Error & { loc: acorn.Position };
 
-export default async function checkForOffendingOutput(
-  ignoreModules: string[] = []
-) {
+export default async function checkForOffendingOutput(ignoreModules: string[] = []) {
   const ecmaVersion = 5;
   const paths = ["./.next/static/**/*.js"];
   const useEsModules = false;
@@ -29,7 +27,7 @@ export default async function checkForOffendingOutput(
   }
 
   // Discover files
-  paths.forEach((pattern) => {
+  paths.forEach(pattern => {
     const paths = glob.sync(pattern, globOptions);
     files.push(...paths);
   });
@@ -41,7 +39,7 @@ export default async function checkForOffendingOutput(
   console.log(`[PRESET] Checking browser compatibility...`);
 
   await Promise.all(
-    files.map(async (file) => {
+    files.map(async file => {
       const code = await fs.readFile(file, "utf-8");
 
       try {
@@ -49,7 +47,7 @@ export default async function checkForOffendingOutput(
       } catch (error: unknown) {
         errors.push({ file, error: error as AcornError });
       }
-    })
+    }),
   );
 
   if (errors.length === 0) {
@@ -71,10 +69,7 @@ export default async function checkForOffendingOutput(
           column: error.loc.column,
         });
 
-        if (
-          !originalPosition.source ||
-          offenders.includes(originalPosition.source)
-        ) {
+        if (!originalPosition.source || offenders.includes(originalPosition.source)) {
           return;
         }
 
@@ -83,24 +78,24 @@ export default async function checkForOffendingOutput(
         console.log();
         console.log("[PRESET]");
         console.log(
-          `${_.uniqBy(errors, (error) => error.file).length} offending ${
+          `${_.uniqBy(errors, error => error.file).length} offending ${
             errors.length === 1 ? "file" : "files"
-          } found.`
+          } found.`,
         );
         console.log();
         console.error(
-          "Please run `next build` with `productionBrowserSourceMaps: true` in `next.config.js` to find offending dependencies."
+          "Please run `next build` with `productionBrowserSourceMaps: true` in `next.config.js` to find offending dependencies.",
         );
         console.log();
 
         process.exit(1);
       }
-    })
+    }),
   );
 
-  const filteredOffenders = _.uniq(
-    offenders.map((offender) => formatEntry(offender))
-  ).filter((offender) => !ignoreModules.includes(offender));
+  const filteredOffenders = _.uniq(offenders.map(offender => formatEntry(offender))).filter(
+    offender => !ignoreModules.includes(offender),
+  );
 
   if (filteredOffenders.length === 0) {
     return;
@@ -108,7 +103,7 @@ export default async function checkForOffendingOutput(
 
   console.log("[PRESET]");
   console.log(
-    "You might want to add the following entries to `preset.transpileModules` in `next.config.js`:"
+    "You might want to add the following entries to `preset.transpileModules` in `next.config.js`:",
   );
   console.log();
 
@@ -117,9 +112,7 @@ export default async function checkForOffendingOutput(
   }
 
   console.log();
-  console.log(
-    `For more information, see: https://github.com/martpie/next-transpile-modules`
-  );
+  console.log(`For more information, see: https://github.com/martpie/next-transpile-modules`);
   console.log();
 
   process.exit(1);

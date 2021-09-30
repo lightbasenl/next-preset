@@ -18,14 +18,11 @@ class BrowserCompatibilityWebpackPlugin {
     module.alreadyRun = true;
 
     // Specify the event hook to attach to
-    compiler.hooks.afterEmit.tapAsync(
-      "next-preset",
-      async (compilation, callback) => {
-        await checkForOffendingOutput(this.ignoreModules);
+    compiler.hooks.afterEmit.tapAsync("next-preset", async (compilation, callback) => {
+      await checkForOffendingOutput(this.ignoreModules);
 
-        callback();
-      }
-    );
+      callback();
+    });
   }
 }
 

@@ -14,14 +14,11 @@ class SourcemapCleanupWebpackPlugin {
     module.alreadyRun = true;
 
     // Specify the event hook to attach to
-    compiler.hooks.afterEmit.tapAsync(
-      "next-preset",
-      async (compilation, callback) => {
-        await removeSourceMaps();
+    compiler.hooks.afterEmit.tapAsync("next-preset", async (compilation, callback) => {
+      await removeSourceMaps();
 
-        callback();
-      }
-    );
+      callback();
+    });
   }
 }
 

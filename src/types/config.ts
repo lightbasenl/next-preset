@@ -22,7 +22,7 @@ export type NextConfigObject = {
 
 export type NextConfigFunction = (
   phase: string,
-  defaults: { defaultConfig: { [key: string]: unknown } }
+  defaults: { defaultConfig: { [key: string]: unknown } },
 ) => NextConfigObject;
 
 /**
@@ -32,7 +32,7 @@ export type NextConfigFunction = (
 // the format for providing custom webpack config in your nextjs options
 export type WebpackConfigFunction = (
   config: WebpackConfigObject,
-  options: BuildContext
+  options: BuildContext,
 ) => WebpackConfigObject;
 
 export type WebpackConfigObject = {

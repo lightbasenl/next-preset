@@ -8,7 +8,7 @@ export default async function removeSourceMaps() {
   const globOptions: glob.IOptions = { nodir: true };
 
   // Discover files
-  paths.forEach((pattern) => {
+  paths.forEach(pattern => {
     const paths = glob.sync(pattern, globOptions);
     files.push(...paths);
   });
@@ -19,5 +19,5 @@ export default async function removeSourceMaps() {
 
   console.log(`[PRESET] Cleaning up sourcemaps...`);
 
-  await Promise.all(files.map((file) => fs.unlink(file)));
+  await Promise.all(files.map(file => fs.unlink(file)));
 }
