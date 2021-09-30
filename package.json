@@ -1,8 +1,8 @@
 {
   "name": "@lightbase/next-preset",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "repository": "https://github.com/lightbasenl/next-preset",
-  "main": "index.js",
+  "main": "dist/index.js",
   "author": "Rody Molenaar <rody@lightbase.nl>",
   "scripts": {
     "build": "tsc",
@@ -17,9 +17,7 @@
     "@typescript-eslint/eslint-plugin": "^4.32.0",
     "@typescript-eslint/parser": "^4.32.0",
     "eslint": "^7.32.0",
-    "eslint-config-next": "^11.1.2",
     "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-jsx-a11y": "^6.4.1",
     "next": "^11",
     "prettier": "^2.4.1",
     "react": "^17.0.2",
@@ -34,5 +32,8 @@
     "next-transpile-modules": "^8.0.0",
     "source-map": "0.8.0-beta.0"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "files": [
+    "**"
+  ]
 }
