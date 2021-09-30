@@ -15,20 +15,20 @@
     "next": "^11",
     "@lightbase/eslint-config-lightbase": "^2.15.0",
     "@types/glob": "^7.1.4",
-    "@types/lodash": "^4.14.171",
-    "eslint": "^7.31.0",
-    "prettier": "^2.3.2",
-    "typescript": "^4.3.5"
+    "@types/lodash": "^4.14.175",
+    "eslint": "^7.32.0",
+    "prettier": "^2.4.1",
+    "typescript": "^4.4.3"
   },
   "dependencies": {
-    "@sentry/nextjs": "^6.10.0",
-    "acorn": "^8.4.1",
-    "glob": "^7.1.7",
+    "@sentry/nextjs": "^6.13.2",
+    "acorn": "^8.5.0",
+    "glob": "^7.2.0",
     "lodash": "^4.17.21",
     "next-transpile-modules": "^8.0.0",
     "react": "^17.0.2",
     "source-map": "0.8.0-beta.0",
-    "webpack": "^5.46.0"
+    "webpack": "^5.55.1"
   },
   "license": "MIT",
   "files": [

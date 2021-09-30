@@ -4,6 +4,8 @@ import { promises as fs } from "fs";
 import { SourceMapConsumer } from "source-map";
 import _ from "lodash";
 
+type AcornError = Error & { loc: acorn.Position };
+
 export default async function checkForOffendingOutput(
   ignoreModules: string[] = []
 ) {
@@ -12,7 +14,7 @@ export default async function checkForOffendingOutput(
   const useEsModules = false;
   const allowHashBang = false;
 
-  const errors: { file: string; error: Error & { loc: acorn.Position } }[] = [];
+  const errors: { file: string; error: AcornError }[] = [];
   const files: string[] = [];
   const offenders: string[] = [];
   const globOptions: glob.IOptions = { nodir: true };
@@ -44,8 +46,8 @@ export default async function checkForOffendingOutput(
 
       try {
         acorn.parse(code, acornOptions);
-      } catch (error) {
-        errors.push({ file, error });
+      } catch (error: unknown) {
+        errors.push({ file, error: error as AcornError });
       }
     })
   );
