@@ -4,8 +4,6 @@ import BrowserCompatibilityWebpackPlugin from "./lib/plugins/BrowserCompatibilit
 import extendWebpackConfig from "./lib/extendWebpackConfig";
 import withTM from "next-transpile-modules";
 
-const { withSentryConfig } = require("@sentry/nextjs");
-
 export function withPreset(nextConfig: ExportedNextConfig): NextConfigFunction {
   return (phase, defaults) => {
     const { preset, headers, ...baseConfig } = isFunction(nextConfig)
@@ -69,14 +67,6 @@ export function withPreset(nextConfig: ExportedNextConfig): NextConfigFunction {
 
       return config;
     }, newConfig.webpack);
-
-    if (preset?.sentry?.enabled) {
-      const sentryConfig = withSentryConfig(newConfig, preset?.sentry?.webpackPluginOptions);
-
-      newConfig = (
-        isFunction(sentryConfig) ? sentryConfig(phase, defaults) : sentryConfig
-      ) as NextConfigObject;
-    }
 
     return newConfig;
   };
