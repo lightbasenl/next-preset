@@ -1,8 +1,8 @@
 import checkForOffendingOutput from "../checkForOffendingOutput";
 
 class BrowserCompatibilityWebpackPlugin {
-  constructor(ignoreModules = []) {
-    this.ignoreModules = ignoreModules;
+  constructor(options) {
+    this.options = options;
   }
 
   apply(compiler) {
@@ -19,7 +19,7 @@ class BrowserCompatibilityWebpackPlugin {
 
     // Specify the event hook to attach to
     compiler.hooks.afterEmit.tapAsync("next-preset", async (compilation, callback) => {
-      await checkForOffendingOutput(this.ignoreModules);
+      await checkForOffendingOutput(this.options);
 
       callback();
     });

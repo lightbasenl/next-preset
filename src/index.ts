@@ -62,7 +62,7 @@ export function withPreset(nextConfig: ExportedNextConfig): NextConfigFunction {
         // https://github.com/vercel/next.js/blob/master/errors/improper-devtool.md
         config.devtool = "source-map";
 
-        config.plugins?.push(new BrowserCompatibilityWebpackPlugin(preset?.ignoreModules));
+        config.plugins?.push(new BrowserCompatibilityWebpackPlugin({ ignore: preset?.ignoreModules ?? ['next'], outputPath: config.output.path }));
       }
 
       return config;

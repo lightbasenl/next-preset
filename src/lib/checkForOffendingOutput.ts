@@ -4,18 +4,22 @@ import { promises as fs } from "fs";
 import { SourceMapConsumer } from "source-map";
 import _ from "lodash";
 
+const WEBPACK_PREFIX = "webpack://_N_E/";
+
 type AcornError = Error & { loc: acorn.Position };
 
-export default async function checkForOffendingOutput(ignoreModules: string[] = []) {
+function isAcornError(error: any): error is AcornError  {
+  return "loc" in error;
+}
+
+export default async function checkForOffendingOutput({ignore, outputPath}: { ignore: string[]; outputPath: string }) {
   const ecmaVersion = 5;
-  const paths = ["./.next/static/**/*.js"];
+  const path = `${outputPath}/static/**/*.js`;
   const useEsModules = false;
   const allowHashBang = false;
 
   const errors: { file: string; error: AcornError }[] = [];
-  const files: string[] = [];
   const offenders: string[] = [];
-  const globOptions: glob.IOptions = { nodir: true };
   const acornOptions: acorn.Options = { ecmaVersion };
 
   if (useEsModules) {
@@ -26,11 +30,7 @@ export default async function checkForOffendingOutput(ignoreModules: string[] = 
     acornOptions.allowHashBang = true;
   }
 
-  // Discover files
-  paths.forEach(pattern => {
-    const paths = glob.sync(pattern, globOptions);
-    files.push(...paths);
-  });
+  const files = glob.sync(path, { nodir: true });
 
   if (files.length === 0) {
     return;
@@ -45,56 +45,50 @@ export default async function checkForOffendingOutput(ignoreModules: string[] = 
       try {
         acorn.parse(code, acornOptions);
       } catch (error: unknown) {
-        errors.push({ file, error: error as AcornError });
-      }
-    }),
-  );
-
-  if (errors.length === 0) {
-    return;
-  }
-
-  // Process source maps
-  await Promise.all(
-    errors.map(async ({ file, error }) => {
-      try {
-        const contents = await fs.readFile(`${file}.map`, "utf-8");
-
-        const data = JSON.parse(contents);
-
-        const sourceMap = await new SourceMapConsumer(data);
-
-        const originalPosition = sourceMap.originalPositionFor({
-          line: error.loc.line,
-          column: error.loc.column,
-        });
-
-        if (!originalPosition.source || offenders.includes(originalPosition.source)) {
-          return;
+        if (!isAcornError(error)) {
+          throw error;
         }
 
-        offenders.push(originalPosition.source);
-      } catch (error) {
-        console.log();
-        console.log("[PRESET]");
-        console.log(
-          `${_.uniqBy(errors, error => error.file).length} offending ${
-            errors.length === 1 ? "file" : "files"
-          } found.`,
-        );
-        console.log();
-        console.error(
-          "Please run `next build` with `productionBrowserSourceMaps: true` in `next.config.js` to find offending dependencies.",
-        );
-        console.log();
+        try {
 
-        process.exit(1);
+          const sourceMap = await new SourceMapConsumer(JSON.parse(await fs.readFile(`${file}.map`, "utf-8")));
+
+          const originalPosition = sourceMap.originalPositionFor({
+            line: error.loc.line,
+            column: error.loc.column,
+          });
+
+          if (!originalPosition.source || !originalPosition.source.startsWith(`${WEBPACK_PREFIX}/node_modules/`)) {
+            return;
+          }
+
+          offenders.push(originalPosition.source);
+
+          errors.push({file, error: error});
+        } catch (error) {
+          console.error(error);
+
+          console.log();
+          console.log("[PRESET]");
+          console.log(
+              `${_.uniqBy(errors, error => error.file).length} offending ${
+                  errors.length === 1 ? "file" : "files"
+              } found.`,
+          );
+          console.log();
+          console.error(
+              "Please run `next build` with `productionBrowserSourceMaps: true` in `next.config.js` to find offending dependencies.",
+          );
+          console.log();
+
+          process.exit(1);
+        }
       }
     }),
   );
 
   const filteredOffenders = _.uniq(offenders.map(offender => formatEntry(offender))).filter(
-    offender => !ignoreModules.includes(offender),
+    offender => !ignore.includes(offender),
   );
 
   if (filteredOffenders.length === 0) {
@@ -120,7 +114,7 @@ export default async function checkForOffendingOutput(ignoreModules: string[] = 
 
 function formatEntry(entry: string) {
   return entry
-    .replace("webpack://_N_E/", "")
+    .replace(WEBPACK_PREFIX, "")
     .split("/")
     .reduce<string[]>((parts, part, index) => {
       if (parts.length === 0 && part === "node_modules" && index === 0) {
